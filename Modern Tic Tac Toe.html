@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- saved from url=(0056)file:///C:/Users/musfa/Desktop/learn%20python/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Tic Tac Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .player-turn {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .score-item {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 0.9em;
+        }
+
+        .score-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.3em;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            background: #f9f9f9;
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #667eea;
+        }
+
+        .cell.o {
+            color: #764ba2;
+        }
+
+        .cell:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset-scores {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-reset-scores:hover {
+            background: #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .modal-content button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .cell {
+                font-size: 2em;
+            }
+
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 TIC TAC TOE</h1>
+        <p class="subtitle">Modern &amp; Responsive</p>
+
+        <div class="game-info">
+            <div class="player-turn" id="playerTurn">Player X's Turn</div>
+            <div class="score">
+                <div class="score-item">X: <span class="score-value" id="scoreX">1</span></div>
+                <div class="score-item">Draw: <span class="score-value" id="scoreDraw">0</span></div>
+                <div class="score-item">O: <span class="score-value" id="scoreO">0</span></div>
+            </div>
+        </div>
+
+       <div class="board" id="board">
+    <button class="cell" data-index="0"></button>
+    <button class="cell" data-index="1"></button>
+    <button class="cell" data-index="2"></button>
+    <button class="cell" data-index="3"></button>
+    <button class="cell" data-index="4"></button>
+    <button class="cell" data-index="5"></button>
+    <button class="cell" data-index="6"></button>
+    <button class="cell" data-index="7"></button>
+    <button class="cell" data-index="8"></button>
+</div>
+
+
+        <div class="buttons">
+            <button class="btn-restart" id="restartBtn">New Game</button>
+            <button class="btn-reset-scores" id="resetBtn">Reset Scores</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">🎉 Player X Wins!</h2>
+            <p id="modalMessage">Congratulations! You won this round.</p>
+            <button onclick="document.getElementById(&#39;modal&#39;).classList.remove(&#39;active&#39;)">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const playerTurnDisplay = document.getElementById('playerTurn');
+        const scoreXDisplay = document.getElementById('scoreX');
+        const scoreODisplay = document.getElementById('scoreO');
+        const scoreDrawDisplay = document.getElementById('scoreDraw');
+        const restartBtn = document.getElementById('restartBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let scoreX = 0;
+        let scoreO = 0;
+        let scoreDraw = 0;
+
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function checkWinner() {
+            for (let condition of winningConditions) {
+                const [a, b, c] = condition;
+                if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                    return gameBoard[a];
+                }
+            }
+            return null;
+        }
+
+        function checkDraw() {
+            return gameBoard.every(cell => cell !== '');
+        }
+
+        function updateDisplay() {
+            playerTurnDisplay.textContent = `Player ${currentPlayer}'s Turn`;
+        }
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modal.classList.add('active');
+        }
+
+        function resetGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            updateDisplay();
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+                cell.disabled = false;
+            });
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+
+                if (gameBoard[index] !== '' || !gameActive) return;
+
+                gameBoard[index] = currentPlayer;
+                e.target.textContent = currentPlayer;
+                e.target.classList.add(currentPlayer.toLowerCase());
+                e.target.disabled = true;
+
+                const winner = checkWinner();
+                if (winner) {
+                    gameActive = false;
+                    if (winner === 'X') {
+                        scoreX++;
+                        scoreXDisplay.textContent = scoreX;
+                        showModal('🎉 Player X Wins!', 'Congratulations! You won this round.');
+                    } else {
+                        scoreO++;
+                        scoreODisplay.textContent = scoreO;
+                        showModal('🎉 Player O Wins!', 'Congratulations! You won this round.');
+                    }
+                    return;
+                }
+
+                if (checkDraw()) {
+                    gameActive = false;
+                    scoreDraw++;
+                    scoreDrawDisplay.textContent = scoreDraw;
+                    showModal("🤝 It's a Draw!", 'This round was evenly matched!');
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                updateDisplay();
+            });
+        });
+
+        restartBtn.addEventListener('click', resetGame);
+
+        resetBtn.addEventListener('click', () => {
+            scoreX = 0;
+            scoreO = 0;
+            scoreDraw = 0;
+            scoreXDisplay.textContent = '0';
+            scoreODisplay.textContent = '0';
+            scoreDrawDisplay.textContent = '0';
+            resetGame();
+        });
+
+        updateDisplay();
+    </script>
+
+</body></html>
